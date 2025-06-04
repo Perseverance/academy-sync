@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 224 71% 4%; /* Dark Blue 100 */
+    --foreground: 210 20% 98%; /* Neutral 10 (Lightest Gray/White) */
+    --card: 220 25% 10%; /* Slightly lighter dark blue/gray */
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 25 95% 53%; /* Orange 60 */
+    --primary-foreground: 210 20% 98%;
+    --secondary: 215 28% 17%; /* Dark Blue 70 */
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 210 20% 60%; /* Neutral 40 */
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 72% 51%; /* Error 60 */
+    --destructive-foreground: 210 20% 98%;
+    --success: 142 71% 45%; /* Success 60 */
+    --success-foreground: 210 20% 98%;
+    --border: 215 20% 25%; /* Neutral 70-ish for dark theme */
+    --input: 215 20% 25%;
+    --ring: 25 95% 53%; /* Orange 60 for focus rings */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+    --card: 220 25% 10%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 210 20% 60%;
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
+    --success: 142 71% 45%;
+    --success-foreground: 210 20% 98%;
+    --border: 215 20% 25%;
+    --input: 215 20% 25%;
+    --ring: 25 95% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.font-poppins {
+  font-family: var(--font-poppins);
+}
