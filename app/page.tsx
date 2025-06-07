@@ -1,5 +1,5 @@
-import { LandingPage } from "@/components/landing-page"
+import { SignInPage } from "@/components/sign-in-page"
 
-export default function Home() {
-  return <LandingPage />
+export default function HomeUnauthenticated() {
+  return <SignInPage />
 }

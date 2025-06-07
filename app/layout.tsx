@@ -1,36 +1,39 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Poppins } from "next/font/google"
+import { Inter, Exo_2 as Exo2 } from "next/font/google" // Updated font import
 import "./globals.css"
-import { AuthProvider } from "@/components/auth-provider"
+import { AppStateProvider } from "@/context/app-state-provider" // Renamed for clarity
 import { Toaster } from "@/components/ui/toaster"
-import { ThemeProvider } from "@/components/theme-provider" // Assuming you have a theme provider
+import { ThemeProvider } from "@/components/theme-provider"
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
+const inter = Inter({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "600", "700"],
+  variable: "--font-inter",
+})
+
+const exo2 = Exo2({
+  // Updated font name
+  subsets: ["latin", "cyrillic"],
+  weight: ["700"],
+  variable: "--font-exo2",
 })
 
 export const metadata: Metadata = {
-  title: "Strava Logger - Automate Your Running Log",
-  description: "Connect Strava to Google Sheets and automate your running data logging",
-    generator: 'v0.dev'
+  title: "Strava Log Automator - Configuration",
+  description: "Configure your automated Strava running log to Google Sheets.",
+  generator: "v0.dev",
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <AuthProvider>
+      <body className={`${inter.variable} ${exo2.variable} font-body antialiased bg-background text-foreground`}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+          <AppStateProvider>
             {children}
             <Toaster />
-          </AuthProvider>
+          </AppStateProvider>
         </ThemeProvider>
       </body>
     </html>

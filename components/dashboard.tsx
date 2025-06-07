@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"; // Using custom buttons now
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input" // Will use shadcn input and style via globals/tailwind.config
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth-provider"
@@ -23,6 +23,7 @@ import {
   Unlink,
 } from "lucide-react"
 
+// ... (interfaces remain the same) ...
 interface ConnectionStatus {
   google: "active" | "needs_reauth" | "error"
   strava: "connected" | "not_connected" | "needs_reauth"
@@ -36,11 +37,11 @@ interface LastRunStatus {
 }
 
 export function Dashboard() {
-  const { user, isLoading: authLoading } = useAuth() // AuthProvider handles redirect if no user
+  const { user, isLoading: authLoading } = useAuth()
   const { toast } = useToast()
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
-    google: "active", // Assume active initially, backend would confirm
+    google: "active",
     strava: "not_connected",
   })
   const [spreadsheetUrl, setSpreadsheetUrl] = useState("")
@@ -55,21 +56,19 @@ export function Dashboard() {
 
   useEffect(() => {
     if (user) {
-      // Simulate fetching initial data from backend
       const fetchData = async () => {
         setIsFetchingData(true)
-        await new Promise((resolve) => setTimeout(resolve, 1200)) // Simulate API delay
-        // Mocked API response
+        await new Promise((resolve) => setTimeout(resolve, 1200))
         setConnectionStatus({
-          google: "active",
-          strava: "connected",
-          stravaUsername: "StravaRunner123",
+          google: "active", // Mocked
+          strava: "connected", // Mocked
+          stravaUsername: "AcademyRunner", // Mocked
         })
-        const savedUrl = "https://docs.google.com/spreadsheets/d/example123/edit"
+        const savedUrl = "https://docs.google.com/spreadsheets/d/example123/edit" // Mocked
         setSpreadsheetUrl(savedUrl)
         setInputSpreadsheetUrl(savedUrl)
         setLastRunStatus({
-          date: new Date().toLocaleDateString("en-CA"), // YYYY-MM-DD
+          date: new Date().toLocaleDateString("en-CA"),
           status: "success",
           message:
             "Successfully logged 10.50 km and 00:55:30. Workout description in 'Описание на тренировката' updated.",
@@ -80,40 +79,37 @@ export function Dashboard() {
     }
   }, [user])
 
-  const handleConnectStrava = async () => {
+  const initiateStravaAuth = (isReauth = false) => {
+    const stravaClientId = "YOUR_STRAVA_CLIENT_ID"
+    const frontendCallbackUrl = `${window.location.origin}/auth/strava/callback`
+    const scopes = "activity:read_all,profile:read_all"
+    localStorage.setItem("stravaOAuthRedirect", "/dashboard")
+    const params = new URLSearchParams({
+      client_id: stravaClientId,
+      redirect_uri: frontendCallbackUrl,
+      response_type: "code",
+      approval_prompt: isReauth ? "force" : "auto",
+      scope: scopes,
+    })
+    window.location.href = `https://www.strava.com/oauth/authorize?${params.toString()}`
+  }
+
+  const handleConnectStrava = () => {
     setIsConnectingStrava(true)
-    toast({ title: "Connecting to Strava...", description: "Please follow the Strava authorization steps." })
-    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate OAuth flow
-    setConnectionStatus((prev) => ({ ...prev, strava: "connected", stravaUsername: "StravaRunner123" }))
-    toast({ title: "Strava Connected!", description: "Your Strava account is now linked.", variant: "default" })
-    setIsConnectingStrava(false)
+    initiateStravaAuth(false)
+  }
+  const handleReauthorizeStrava = () => {
+    setIsConnectingStrava(true)
+    initiateStravaAuth(true)
   }
 
   const handleDisconnectStrava = async () => {
     setIsDisconnectingStrava(true)
-    toast({ title: "Disconnecting Strava...", description: "Please wait." })
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    // Simulate API Call
+    await new Promise((res) => setTimeout(res, 1000))
     setConnectionStatus((prev) => ({ ...prev, strava: "not_connected", stravaUsername: undefined }))
-    toast({ title: "Strava Disconnected", description: "Your Strava account has been unlinked.", variant: "default" })
+    toast({ title: "Strava Disconnected" })
     setIsDisconnectingStrava(false)
-  }
-
-  const handleReauthorizeStrava = async () => {
-    // Similar to connect, but might have different backend logic or UI indication
-    setIsConnectingStrava(true) // Reuse loading state
-    toast({ title: "Re-authorizing Strava...", description: "Please follow the Strava authorization steps." })
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setConnectionStatus((prev) => ({
-      ...prev,
-      strava: "connected",
-      stravaUsername: prev.stravaUsername || "StravaUser",
-    }))
-    toast({
-      title: "Strava Re-authorized!",
-      description: "Your Strava connection has been refreshed.",
-      variant: "default",
-    })
-    setIsConnectingStrava(false)
   }
 
   const handleSaveSpreadsheet = async () => {
@@ -126,33 +122,24 @@ export function Dashboard() {
       return
     }
     setIsSavingUrl(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
-    // On success from backend:
+    await new Promise((res) => setTimeout(res, 1000)) // Simulate API
     setSpreadsheetUrl(inputSpreadsheetUrl)
-    toast({ title: "Spreadsheet Link Saved!", description: "Your configuration has been updated.", variant: "default" })
+    toast({ title: "Spreadsheet Link Saved!" })
     setIsSavingUrl(false)
-    // On error:
-    // toast({ title: "Error Saving Link", description: "Could not save the spreadsheet link. Please try again.", variant: "destructive" })
   }
 
   const handleReauthorizeGoogle = async () => {
     setIsReauthorizingGoogle(true)
-    toast({ title: "Re-authorizing Google...", description: "Please follow the Google authorization steps." })
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // Simulate Google OAuth re-auth flow (likely redirect)
+    await new Promise((res) => setTimeout(res, 1500))
     setConnectionStatus((prev) => ({ ...prev, google: "active" }))
-    toast({
-      title: "Google Permissions Renewed!",
-      description: "Your Google Sheets access is active.",
-      variant: "default",
-    })
+    toast({ title: "Google Re-authorized" })
     setIsReauthorizingGoogle(false)
   }
 
   if (authLoading || isFetchingData) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-150px)]">
-        {" "}
-        {/* Adjust height as needed */}
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     )
@@ -163,6 +150,8 @@ export function Dashboard() {
     serviceName: string,
     username?: string,
   ) => {
+    // Using default success/destructive colors from Tailwind config now
+    // These are mapped to Academy Green (via --primary for success-like states) and a default red.
     let icon,
       text,
       badgeVariant: "default" | "secondary" | "destructive" | "outline" = "secondary",
@@ -170,161 +159,151 @@ export function Dashboard() {
     switch (status) {
       case "active":
       case "connected":
-        icon = <CheckCircle className="w-5 h-5 text-success" />
+        icon = <CheckCircle className="w-5 h-5 text-green-600" /> // Explicit green
         text = serviceName === "Strava" ? `Connected as ${username}` : "Sheets Access: Active"
-        badgeVariant = "default"
+        badgeVariant = "default" // This will use primary color by default in shadcn
         badgeText = "Active"
         break
       case "needs_reauth":
-        icon = <AlertTriangle className="w-5 h-5 text-orange-400" />
+        icon = <AlertTriangle className="w-5 h-5 text-orange-500" /> // Standard warning orange
         text = `${serviceName} Access: Re-authorization Needed!`
         badgeVariant = "outline"
         badgeText = "Re-authorize"
         break
       case "not_connected":
-        icon = <XCircle className="w-5 h-5 text-destructive" />
+        icon = <XCircle className="w-5 h-5 text-red-600" /> // Explicit red
         text = `${serviceName}: Not Connected`
         badgeVariant = "destructive"
         badgeText = "Not Connected"
         break
-      default: // error or unknown
-        icon = <AlertTriangle className="w-5 h-5 text-destructive" />
+      default:
+        icon = <AlertTriangle className="w-5 h-5 text-red-600" />
         text = `${serviceName} Access: Error`
         badgeVariant = "destructive"
         badgeText = "Error"
     }
-    return {
-      icon,
-      text,
-      badge: (
-        <Badge
-          variant={badgeVariant}
-          className={badgeVariant === "default" ? "bg-success/20 text-success border-success/30" : ""}
-        >
-          {badgeText}
-        </Badge>
-      ),
-    }
+    return { icon, text, badge: <Badge variant={badgeVariant}>{badgeText}</Badge> }
   }
 
   const googleStatus = getStatusDisplay(connectionStatus.google, "Google")
   const stravaStatus = getStatusDisplay(connectionStatus.strava, "Strava", connectionStatus.stravaUsername)
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-3xl mx-auto font-body">
       {(connectionStatus.google === "needs_reauth" || connectionStatus.strava === "needs_reauth") && (
-        <Card className="border-orange-500/50 bg-orange-500/10">
+        <Card className="border-orange-500 bg-orange-50">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-3">
-              <AlertTriangle className="w-6 h-6 text-orange-400" />
-              <p className="text-orange-300 font-medium">
-                Action Required: Some connections need re-authorization to ensure smooth operation.
-              </p>
+              <AlertTriangle className="w-6 h-6 text-orange-600" />
+              <p className="text-orange-700 font-semibold">Action Required: Some connections need re-authorization.</p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <Card>
+      {/* Google Account Card */}
+      <Card className="bg-card shadow-md rounded-lg">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <UserCircle2 className="mr-2 h-6 w-6 text-primary" />
+          <CardTitle className="flex items-center text-2xl">
+            <UserCircle2 className="mr-3 h-7 w-7" />
             Google Account
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-muted-foreground">
-            Connected as: <span className="font-medium text-foreground">{user?.email}</span>
+        <CardContent className="space-y-4">
+          <p className="text-foreground/80">
+            Connected as: <span className="font-semibold text-foreground">{user?.email}</span>
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {googleStatus.icon}
-              <span className="text-sm">{googleStatus.text}</span>
+              <span className="text-sm text-foreground/90">{googleStatus.text}</span>
             </div>
             {googleStatus.badge}
           </div>
           {connectionStatus.google === "needs_reauth" && (
-            <Button onClick={handleReauthorizeGoogle} disabled={isReauthorizingGoogle} size="sm">
-              {isReauthorizingGoogle ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
+            <button
+              className="btn-academy-secondary text-sm"
+              onClick={handleReauthorizeGoogle}
+              disabled={isReauthorizingGoogle}
+            >
+              {isReauthorizingGoogle ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               Re-authorize Google
-            </Button>
+            </button>
           )}
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Strava Connection Card */}
+      <Card className="bg-card shadow-md rounded-lg">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Activity className="mr-2 h-6 w-6 text-primary" />
+          <CardTitle className="flex items-center text-2xl">
+            <Activity className="mr-3 h-7 w-7" />
             Strava Connection
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {stravaStatus.icon}
-              <span className="text-sm">{stravaStatus.text}</span>
+              <span className="text-sm text-foreground/90">{stravaStatus.text}</span>
             </div>
             {stravaStatus.badge}
           </div>
           {connectionStatus.strava === "not_connected" && (
-            <Button onClick={handleConnectStrava} disabled={isConnectingStrava}>
-              {isConnectingStrava ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <LinkIcon className="mr-2 h-4 w-4" />
-              )}
+            <button className="btn-academy-primary" onClick={handleConnectStrava} disabled={isConnectingStrava}>
+              {isConnectingStrava ? <Loader2 className="h-4 w-4 animate-spin" /> : <LinkIcon className="h-4 w-4" />}
               Connect to Strava
-            </Button>
+            </button>
           )}
           {connectionStatus.strava === "connected" && (
-            <div className="flex space-x-2">
-              <Button onClick={handleReauthorizeStrava} variant="outline" size="sm" disabled={isConnectingStrava}>
-                {isConnectingStrava ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                )}
+            <div className="flex space-x-3">
+              <button
+                className="btn-academy-secondary text-sm"
+                onClick={handleReauthorizeStrava}
+                disabled={isConnectingStrava}
+              >
+                {isConnectingStrava ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 Re-authorize
-              </Button>
-              <Button onClick={handleDisconnectStrava} variant="destructive" size="sm" disabled={isDisconnectingStrava}>
-                {isDisconnectingStrava ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Unlink className="mr-2 h-4 w-4" />
-                )}
-                Disconnect Strava
-              </Button>
+              </button>
+              <button
+                className="btn-academy-destructive"
+                onClick={handleDisconnectStrava}
+                disabled={isDisconnectingStrava}
+              >
+                {isDisconnectingStrava ? <Loader2 className="h-4 w-4 animate-spin" /> : <Unlink className="h-4 w-4" />}
+                Disconnect
+              </button>
             </div>
           )}
           {connectionStatus.strava === "needs_reauth" && (
-            <Button onClick={handleReauthorizeStrava} size="sm" disabled={isConnectingStrava}>
-              {isConnectingStrava ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
+            <button
+              className="btn-academy-secondary text-sm"
+              onClick={handleReauthorizeStrava}
+              disabled={isConnectingStrava}
+            >
+              {isConnectingStrava ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               Re-authorize Strava
-            </Button>
+            </button>
           )}
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Spreadsheet Config Card */}
+      <Card className="bg-card shadow-md rounded-lg">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <FileSpreadsheet className="mr-2 h-6 w-6 text-primary" />
-            Google Spreadsheet Configuration
+          <CardTitle className="flex items-center text-2xl">
+            <FileSpreadsheet className="mr-3 h-7 w-7" />
+            Spreadsheet Configuration
           </CardTitle>
-          <CardDescription>Paste the full URL of your Google Spreadsheet.</CardDescription>
+          <CardDescription className="text-foreground/70 pt-1">
+            Paste the full URL of your Google Spreadsheet for activity logging.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label htmlFor="spreadsheet-url">Spreadsheet Link</Label>
+            <Label htmlFor="spreadsheet-url" className="font-semibold text-foreground/90">
+              Spreadsheet Link
+            </Label>
             <div className="flex space-x-2 mt-1">
               <Input
                 id="spreadsheet-url"
@@ -332,45 +311,50 @@ export function Dashboard() {
                 placeholder="https://docs.google.com/spreadsheets/d/..."
                 value={inputSpreadsheetUrl}
                 onChange={(e) => setInputSpreadsheetUrl(e.target.value)}
-                className="flex-grow"
+                className="input-academy flex-grow" // Using custom class
               />
-              <Button onClick={handleSaveSpreadsheet} disabled={isSavingUrl || inputSpreadsheetUrl === spreadsheetUrl}>
-                {isSavingUrl ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              <button
+                className="btn-academy-primary"
+                onClick={handleSaveSpreadsheet}
+                disabled={isSavingUrl || inputSpreadsheetUrl === spreadsheetUrl}
+              >
+                {isSavingUrl ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Save Link
-              </Button>
+              </button>
             </div>
           </div>
           {spreadsheetUrl && (
-            <p className="text-sm text-muted-foreground flex items-center">
+            <p className="text-sm text-foreground/80 flex items-center">
               Current:{" "}
               <a
                 href={spreadsheetUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-1 text-primary hover:underline truncate max-w-xs inline-block"
+                className="ml-1 text-accent hover:underline truncate max-w-xs inline-block"
               >
                 {spreadsheetUrl}
               </a>
-              <ExternalLink className="ml-1 h-3 w-3 text-primary" />
+              <ExternalLink className="ml-1 h-3 w-3 text-accent" />
             </p>
           )}
-          {!spreadsheetUrl && <p className="text-sm text-muted-foreground">Spreadsheet Link: Not Set.</p>}
+          {!spreadsheetUrl && <p className="text-sm text-foreground/80">Spreadsheet Link: Not Set.</p>}
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Last Run Status Card */}
+      <Card className="bg-card shadow-md rounded-lg">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Clock className="mr-2 h-6 w-6 text-primary" />
-            Last Automation Run Status
+          <CardTitle className="flex items-center text-2xl">
+            <Clock className="mr-3 h-7 w-7" />
+            Last Automation Run
           </CardTitle>
         </CardHeader>
         <CardContent>
           {lastRunStatus ? (
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">
-                  Last Sync Attempt:{" "}
+                <p className="text-sm font-semibold text-foreground">
+                  Last Sync:{" "}
                   {new Date(lastRunStatus.date).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
@@ -387,10 +371,10 @@ export function Dashboard() {
                   }
                   className={
                     lastRunStatus.status === "success"
-                      ? "bg-success/20 text-success border-success/30"
+                      ? "bg-green-100 text-green-700 border-green-300"
                       : lastRunStatus.status === "partial_error"
-                        ? "bg-orange-500/20 text-orange-400 border-orange-500/30"
-                        : ""
+                        ? "bg-orange-100 text-orange-700 border-orange-300"
+                        : "bg-red-100 text-red-700 border-red-300"
                   }
                 >
                   {lastRunStatus.status === "success"
@@ -400,10 +384,10 @@ export function Dashboard() {
                       : "Failed"}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">{lastRunStatus.message}</p>
+              <p className="text-sm text-foreground/80">{lastRunStatus.message}</p>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No automation run data available yet.</p>
+            <p className="text-sm text-foreground/80">No automation run data available yet.</p>
           )}
         </CardContent>
       </Card>

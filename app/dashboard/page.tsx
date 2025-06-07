@@ -1,10 +1,5 @@
-import { Dashboard } from "@/components/dashboard"
-import { AppShell } from "@/components/app-shell"
+import { DashboardPage } from "@/components/dashboard-page"
 
-export default function DashboardPage() {
-  return (
-    <AppShell>
-      <Dashboard />
-    </AppShell>
-  )
+export default function DashboardRoute() {
+  return <DashboardPage />
 }
